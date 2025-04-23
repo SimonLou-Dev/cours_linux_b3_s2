@@ -83,9 +83,9 @@ Chaque VM est connectée en **`public_network`**, avec une IP fixe.
 
 | Dossier         | Description                                                           | Lien                                  |
 |----------------|-----------------------------------------------------------------------|---------------------------------------|
-| `./rsyslog/`   | TP configuration `rsyslog`, avec ou sans TLS.                         | [`./rsyslog/readme.md`](./rsyslog/readme.md) |
-| `./cron/`      | TP sur les tâches planifiées (tâches aléatoires, planifiées, etc.)    | [`./cron/readme.md`](./cron/readme.md)       |
-| `./auto_bash/` | Script Bash `user-and-ui` pour automatiser utilisateurs & UI.         | [`./auto_bash/readme.md`](./auto_bash/readme.md) |
+| `./rsyslog/`   | TP configuration `rsyslog`, avec ou sans TLS.                         | [`./rsyslog/readme.md`](./rsyslog) |
+| `./cron/`      | TP sur les tâches planifiées (tâches aléatoires, planifiées, etc.)    | [`./cron/readme.md`](./cron)       |
+| `./auto_bash/` | Script Bash `user-and-ui` pour automatiser utilisateurs & UI.         | [`./auto_bash/readme.md`](./auto_bash) |
 
 ---
 
@@ -114,4 +114,11 @@ vagrant ssh rsyslog-client
 
 ```bash
 vagrant ssh rsyslog-server
+```
+
+
+## 🛑 Arret
+
+```bash
+vagrant destroy
 ```
