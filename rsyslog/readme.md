@@ -38,6 +38,11 @@ sudo systemctl enable --now rsyslog
 
 ## Ajout d'un serveur ntp
 
+Pourquoi utiliser NTP ?
+<br>
+synchroniser à la seconde près toute les machines pour avoir des logs cohérent entre chaque, mais aussi pour que les cron s'éxécutent tous à la même heure.<br>
+
+
 Installation
 ```bash
 sudo dnf install chrony
@@ -378,6 +383,31 @@ Apr 23 15:28:09 rsyslog-server rsyslogd[29228]: imjournal: journal files changed
 ```
 
 # Régler les erreur d'horloges
+
+## Contexe 
+
+Quand on utilise des machines virtuelles (comme avec VirtualBox), il arrive que la source d'horloge par défaut cause des problèmes de désynchronisation. Les VMs peuvent dériver du temps réel, cela crée des erreurs comme ci-dessous dans les logs :
+
+```log
+Apr 23 18:02:33 rsyslog-client kernel: clocksource: wd-tsc-early-wd read-back delay of 940622ns, clock-skew test skipped!
+Apr 23 18:02:34 rsyslog-client kernel: clocksource: timekeeping watchdog on CPU0: acpi_pm wd-wd read-back delay of 1011022ns
+Apr 23 18:02:34 rsyslog-client kernel: clocksource: wd-tsc-early-wd read-back delay of 853181ns, clock-skew test skipped!
+Apr 23 18:02:34 rsyslog-client kernel: clocksource: timekeeping watchdog on CPU0: acpi_pm wd-wd read-back delay of 1012139ns
+Apr 23 18:02:34 rsyslog-client kernel: clocksource: wd-tsc-early-wd read-back delay of 946489ns, clock-skew test skipped!
+Apr 23 18:02:35 rsyslog-client kernel: clocksource: timekeeping watchdog on CPU0: acpi_pm wd-wd read-back delay of 1010184ns
+Apr 23 18:02:35 rsyslog-client kernel: clocksource: wd-tsc-early-wd read-back delay of 955428ns, clock-skew test skipped!
+Apr 23 18:02:35 rsyslog-client kernel: clocksource: timekeeping watchdog on CPU0: acpi_pm wd-wd read-back delay of 1012977ns
+Apr 23 18:02:35 rsyslog-client kernel: clocksource: wd-tsc-early-wd read-back delay of 899276ns, clock-skew test skipped!
+```
+
+Linux utilise des "clock sources" pour mesurer le temps. Sur certaines VM, des sources comme hpet ou acpi_pm peuvent être moins fiables ou mal gérées par VirtualBox.
+
+## Solution
+
+tsc (Time Stamp Counter) est une source d’horloge rapide et stable sur la majorité des processeurs modernes.
+
+- En forçant le système à utiliser tsc, on évite les erreurs comme :
+- clock skew detected, invalid timestamp, ou system clock drift.
 
 ```bash
 echo tsc | sudo tee /sys/devices/system/clocksource/clocksource0/current_clocksource
