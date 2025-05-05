@@ -1,75 +1,83 @@
-README
+# Configuration des tâches planifiées sous Linux
 
-Ce document décrit la mise en place de diverses tâches planifiées sur un système Linux conformément aux spécifications.
+Ce document présente la mise en place de diverses tâches planifiées sur un système Linux, utilisant différentes méthodes de planification (`cron`, `systemd` et `at`).
 
-Prérequis
+## 📋 Prérequis
 
-Système Linux avec cron, systemd et at installés.
+- Système Linux avec `cron`, `systemd` et `at` installés
+- Droits administrateur (root ou sudo) pour créer les scripts et modifier les fichiers de configuration
 
-Droits root ou sudo pour créer des scripts et modifier /etc/crontab ou les fichiers systemd.
+## 🚀 Tâches configurées
 
-Installation et configuration
+### 1️⃣ Tâche aléatoire au démarrage
 
-1. Tâche aléatoire (intervalle de 30 minutes)
+Exécute une tâche qui démarre après un délai aléatoire (entre 0 et 30 minutes) après le démarrage du système.
 
-Créer le script /usr/local/bin/random_task.sh :
-
+```bash
+# Création du script
 sudo tee /usr/local/bin/random_task.sh << 'EOF'
 #!/bin/bash
-# Attendre aléatoirement entre 0 et 1800 s (30 min)
 sleep $(( RANDOM % 1800 ))
 /usr/bin/logger "tâche1 ok"
 EOF
 sudo chmod +x /usr/local/bin/random_task.sh
 
-Ajouter dans cron via /etc/crontab pour exécution au démarrage :
-
+# Configuration dans cron
 sudo bash -c "echo '@reboot root /usr/local/bin/random_task.sh' >> /etc/crontab"
+```
 
-2. Vérification des mises à jour chaque dimanche à 12:00
+### 2️⃣ Vérification hebdomadaire des mises à jour
 
-Créer le script /usr/local/bin/check_updates.sh :
+Vérifie les mises à jour disponibles tous les dimanches à 12h00 et enregistre le résultat dans un fichier de log daté.
 
+```bash
+# Création du script
 sudo tee /usr/local/bin/check_updates.sh << 'EOF'
 #!/bin/bash
 DATE=$(/bin/date +%Y-%m-%d)
 # Mise à jour de la base de paquets
 /usr/bin/apt-get update >/dev/null 2>&1
-# Simulation d'upgrade pour lister les MAJ dispo
+# Simulation d'upgrade pour lister les MAJ disponibles
 /usr/bin/apt-get -s upgrade > /var/log/update-$DATE.log 2>&1
 EOF
 sudo chmod +x /usr/local/bin/check_updates.sh
 
-Ajouter dans /etc/crontab :
-
+# Configuration dans cron
 sudo bash -c "echo '0 12 * * 0 root /usr/local/bin/check_updates.sh' >> /etc/crontab"
+```
 
-3. Tâche ponctuelle créant un fichier dans /opt/mytask
+### 3️⃣ Tâche ponctuelle avec `at`
 
-Préparer le répertoire :
+Crée un fichier horodaté dans le répertoire `/opt/mytask` à un moment précis (exemple : 1 minute après l'exécution de la commande).
 
+```bash
+# Préparation du répertoire
 sudo mkdir -p /opt/mytask
-sudo chown $(whoami):$(whoami) /opt/mytask
+sudo chown theo:theo /opt/mytask
 
-Planifier l’exécution unique (ex. +1 minute) :
-
+# Planification de la tâche unique
 echo "mkdir -p /opt/mytask; touch /opt/mytask/one_time_$(/bin/date +%Y%m%d_%H%M%S).txt" | at now + 1 minute
+```
 
-4. Exécution toutes les secondes ("computer started")
+### 4️⃣ Tâche toutes les secondes avec systemd
 
-Créer le service /etc/systemd/system/computer-started.service :
+Affiche le message "computer started" toutes les secondes grâce à systemd.
 
+```bash
+# Création du service
+sudo tee /etc/systemd/system/computer-started.service << 'EOF'
 [Unit]
-Description=Echo computer started
+Description=Echo loop
 
 [Service]
 Type=oneshot
 ExecStart=/bin/sh -c 'echo "computer started"'
+EOF
 
-Créer le timer /etc/systemd/system/computer-started.timer :
-
+# Création du timer
+sudo tee /etc/systemd/system/computer-started.timer << 'EOF'
 [Unit]
-Description=Run computer-started.service every second
+Description=Loop computer-started.service
 
 [Timer]
 OnUnitActiveSec=1
@@ -77,16 +85,37 @@ AccuracySec=1us
 
 [Install]
 WantedBy=timers.target
+EOF
 
-Activer et démarrer :
-
+# Activation et démarrage
 sudo systemctl daemon-reload
 sudo systemctl enable --now computer-started.timer
+```
 
-5. Logger la date chaque jour dans le journal système
+### 5️⃣ Journalisation quotidienne de la date
 
-Ajouter dans /etc/crontab avec la macro @daily :
+Enregistre la date du jour dans le journal système tous les jours à minuit.
 
-sudo bash -c "echo '@daily root /usr/bin/logger "\$(/bin/date +%d/%m/%Y)"' >> /etc/crontab"
+```bash
+# Configuration dans cron
+sudo bash -c "echo '@daily root /usr/bin/logger \"\$(/bin/date +%d/%m/%Y)\"' >> /etc/crontab"
+```
 
-Toutes les tâches sont maintenant configurées selon les bonnes pratiques FHS et utilisent les outils cron, at et systemd-timer pour répondre aux besoins énoncés.
+## 🔍 Vérification des tâches
+
+Pour vérifier que les tâches sont correctement configurées :
+
+- **Tâches cron** : `sudo cat /etc/crontab`
+- **Tâches at** : `atq`
+- **Timers systemd** : `systemctl list-timers`
+- **Journal système** : `journalctl -f`
+
+## 📝 Notes supplémentaires
+
+- Assurez-vous que les services cron, atd et systemd sont actifs sur votre système
+- Les logs système peuvent être consultés avec la commande `journalctl`
+- Pour appliquer les modifications de crontab sans redémarrer : `sudo systemctl restart cron`
+
+---
+
+© 2025 - Configuration personnalisée des tâches planifiées Linux
