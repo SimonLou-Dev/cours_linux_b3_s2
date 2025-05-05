@@ -101,21 +101,9 @@ Enregistre la date du jour dans le journal système tous les jours à minuit.
 sudo bash -c "echo '@daily root /usr/bin/logger \"\$(/bin/date +%d/%m/%Y)\"' >> /etc/crontab"
 ```
 
-## 🔍 Vérification des tâches
-
-Pour vérifier que les tâches sont correctement configurées :
+## 🔍 Vérification de ce que nous avons fait
 
 - **Tâches cron** : `sudo cat /etc/crontab`
 - **Tâches at** : `atq`
 - **Timers systemd** : `systemctl list-timers`
 - **Journal système** : `journalctl -f`
-
-## 📝 Notes supplémentaires
-
-- Assurez-vous que les services cron, atd et systemd sont actifs sur votre système
-- Les logs système peuvent être consultés avec la commande `journalctl`
-- Pour appliquer les modifications de crontab sans redémarrer : `sudo systemctl restart cron`
-
----
-
-© 2025 - Configuration personnalisée des tâches planifiées Linux
