@@ -24,12 +24,15 @@ Vagrant.configure("2") do |config|
     nodes.each do |node|
         etcHosts += "echo '" + node[:ip] + "   " + node[:name] + "'>> /etc/hosts" + "\n"
     end #end NODES
-  
+
     nodes.each do |node|
       config.vm.define node[:name] do |cfg|
         cfg.vm.hostname = node[:name]
         cfg.vm.network 'public_network', ip: node[:ip]
-        cfg.disksize.size = node[:disk]
+        if Vagrant.has_plugin?("vagrant-disksize")
+          cfg.disksize.size = node[:disk] if Vagrant::Util::Platform.windows?
+        end
+
         cfg.vm.provider "virtualbox" do |v|
             v.customize [ "modifyvm", :id, "--cpus", node[:cpus] ]
             v.customize [ "modifyvm", :id, "--memory", node[:mem] ]
@@ -37,10 +40,16 @@ Vagrant.configure("2") do |config|
             v.customize [ "modifyvm", :id, "--ioapic", "on" ]
             v.customize [ "modifyvm", :id, "--nictype1", "virtio" ]
         end #end provider
-  
+
+        cfg.vm.provider "vmware_desktop" do |v|
+            v.vmx["numvcpus"] = node[:cpus].to_s
+            v.vmx["memsize"] = node[:mem].to_s
+            v.vmx["displayName"] = node[:name]
+            # Note : VMware does not support changing the name via `--name` like VirtualBox
+        end #end provider
+
         cfg.vm.provision :shell, :inline => etcHosts
         cfg.vm.provision :shell, :inline => common
       end
     end
   end
-  
