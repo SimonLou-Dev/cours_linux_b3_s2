@@ -83,7 +83,7 @@ for i in $(seq 1 10); do
     create_user_if_not_exists "user$i"
 done
 
-# Repo adding steps for desktop environments group installation
+# Repo adding steps for desktop environments installation
 dnf install -y epel-release
 dnf --enablerepo=epel group
 dnf config-manager --enable crb
