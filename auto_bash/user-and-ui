@@ -99,5 +99,13 @@ while true; do
 
     if install_desktop_environment "$choice"; then
         break
+    else
+        echo "Installation failed. Retrying once..."
+        if install_desktop_environment "$choice"; then
+            break
+        else
+            echo "Installation failed again. Exiting script."
+            exit 1
+        fi
     fi
 done
