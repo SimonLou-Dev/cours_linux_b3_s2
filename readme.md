@@ -92,9 +92,8 @@ Chaque VM est connectée en **`public_network`**, avec une IP fixe.
 
 ## ✅ Prérequis
 
-- [VirtualBox](https://www.virtualbox.org/) ou [VMWareFusion](https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion)
+- [VirtualBox](https://www.virtualbox.org/)
 - [Vagrant](https://developer.hashicorp.com/vagrant/)
-- [Plugin vagrant-vmware-desktop](https://developer.hashicorp.com/vagrant/docs/providers/vmware/installation) *pour les utilisateurs de VMWare seulement*
 - Système compatible : Linux, macOS, ou Windows
 
 ---
@@ -104,12 +103,7 @@ Chaque VM est connectée en **`public_network`**, avec une IP fixe.
 ## 🚀 Lancement
 
 ```bash
-# VMWare
-vagrant plugin install vagrant-vmware-desktop
-vagrant up --provider=vmware_desktop
-
-# VBox
-vagrant up --provider=virtualbox
+vagrant up
 ```
 
 ## 🛜 Connexion
