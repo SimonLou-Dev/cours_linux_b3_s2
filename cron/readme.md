@@ -52,11 +52,9 @@ sudo bash -c "echo '0 12 * * 0 root /usr/local/bin/check_updates.sh' >> /etc/cro
 Crée un fichier horodaté dans le répertoire `/opt/mytask` à un moment précis (exemple : 1 minute après l'exécution de la commande).
 
 ```bash
-# Préparation du répertoire
 sudo mkdir -p /opt/mytask
 sudo chown theo:theo /opt/mytask
 
-# Planification de la tâche unique
 echo "mkdir -p /opt/mytask; touch /opt/mytask/one_time_$(/bin/date +%Y%m%d_%H%M%S).txt" | at now + 1 minute
 ```
 
@@ -86,7 +84,6 @@ AccuracySec=1us
 [Install]
 WantedBy=timers.target
 
-# Activation et démarrage
 sudo systemctl daemon-reload
 sudo systemctl enable --now computer-started.timer
 ```
@@ -96,8 +93,15 @@ sudo systemctl enable --now computer-started.timer
 Enregistre la date du jour dans le journal système tous les jours à minuit.
 
 ```bash
-# Configuration dans cron
-sudo bash -c "echo '@daily root /usr/bin/logger \"\$(/bin/date +%d/%m/%Y)\"' >> /etc/crontab"
+sudo vi /usr/local/bin/check_date.sh
+
+#!/bin/bash
+logger "$(date +'%d/%m/%Y')"
+
+sudo chmod +x /usr/local/bin/check_date.sh
+
+sudo bash -c "echo '0 0 * * * root /usr/local/bin/check_date.sh' >> /etc/crontab"
+
 ```
 
 ## 🔍 Vérification de ce que nous avons fait
