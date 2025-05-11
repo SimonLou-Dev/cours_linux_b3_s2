@@ -1,6 +1,8 @@
 # LINUX - LPIC 102 - semestre 2
-## 🎓 ESGI Reims - Semestre 2  
-### Théo Kazak, Rémi Renault, SimonBidet
+
+## 🎓 ESGI Reims - Semestre 2
+
+### Théo Kazak, Rémi Renault, Simon Bidet, Lucas Bonnaire
 
 ---
 
@@ -16,11 +18,11 @@
 
 ### 🕒 Tâches planifiées (Cron)
 
-- Tâche aléatoire toutes les **30 minutes max**, exécutant :  
+- Tâche aléatoire toutes les **30 minutes max**, exécutant :
   `logger tâche1 ok`
 - Tâche **le dimanche à 12:00** : vérifie les mises à jour disponibles, et écrit le résultat dans un fichier de log nommé `update-<date>` dans un emplacement conforme au FHS.
 - Tâche ponctuelle : exécute une commande de votre choix **et crée un fichier dans `/opt/mytask`**.
-- Tâche toutes les **secondes** :  
+- Tâche toutes les **secondes** :
   `echo "computer started"`
 - Tâche **quotidienne** (tous les jours, toutes heures) : exécute un script Bash qui envoie dans les logs système la date du jour au format `DD/MM/YYYY`.
 
@@ -70,7 +72,6 @@ Le dossier courant est **monté automatiquement dans `/vagrant`** sur toutes les
 
 Chaque VM est connectée en **`public_network`**, avec une IP fixe.
 
-
 ---
 
 ## 📚 Documentation
@@ -97,7 +98,6 @@ Chaque VM est connectée en **`public_network`**, avec une IP fixe.
 
 ---
 
-
 ---
 
 ## 🚀 Lancement
@@ -115,7 +115,6 @@ vagrant ssh rsyslog-client
 ```bash
 vagrant ssh rsyslog-server
 ```
-
 
 ## 🛑 Arret
 

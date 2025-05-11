@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
     nodes.each do |node|
         etcHosts += "echo '" + node[:ip] + "   " + node[:name] + "'>> /etc/hosts" + "\n"
     end #end NODES
-  
+
     nodes.each do |node|
       config.vm.define node[:name] do |cfg|
         cfg.vm.hostname = node[:name]
@@ -37,10 +37,9 @@ Vagrant.configure("2") do |config|
             v.customize [ "modifyvm", :id, "--ioapic", "on" ]
             v.customize [ "modifyvm", :id, "--nictype1", "virtio" ]
         end #end provider
-  
+
         cfg.vm.provision :shell, :inline => etcHosts
         cfg.vm.provision :shell, :inline => common
       end
     end
   end
-  

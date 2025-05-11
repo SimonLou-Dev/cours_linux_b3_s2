@@ -1,0 +1,111 @@
+#!/bin/bash
+set -e
+
+# Concernant les outputs, ils sont tous en anglais pour la cohérence du script et des sorties de commandes.
+# Concernant la gestion des utilisateurs et l'utilisation de /etc/passwd, j'ai utilisé id car il parse déjà le fichier et répond au besoin de vérifications
+
+check_if_user_has_home_and_exists() {
+    local user="$1"
+    if id "$user" &>/dev/null; then
+        if [ -d "/home/$user" ]; then
+            echo "Ok for $user."
+        else
+            echo "$user does not have a home directory."
+        fi
+    else
+        echo "$user does not exist."
+    fi
+}
+
+create_user_if_not_exists() {
+    local user="$1"
+    if id "$user" &>/dev/null; then
+        echo "$user already created."
+    else
+        useradd -m -s /bin/bash "$user"
+        echo "$user created."
+        check_if_user_has_home_and_exists "user$i"
+    fi
+}
+
+is_desktop_installed() {
+    local desktop="$1"
+    if dnf group list installed | grep -Fq "$desktop"; then
+        echo "$desktop is already installed. Exiting..."
+        return 0
+    else
+        return 1
+    fi
+}
+
+install_desktop_environment() {
+    local choice="$1"
+    case $choice in
+        1)
+            if is_desktop_installed "KDE Plasma Workspaces"; then
+                return 0
+            fi
+            echo "Installing KDE..."
+            dnf groupinstall -y "KDE Plasma Workspaces"
+            ;;
+        2)
+            if is_desktop_installed "Xfce"; then
+                return 0
+            fi
+            echo "Installing XFCE..."
+            dnf groupinstall -y "Xfce"
+            ;;
+        3)
+            if is_desktop_installed "MATE Desktop"; then
+                return 0
+            fi
+            echo "Installing MATE..."
+            # Je n'ai pas réussi à trouver le groupe MATE, donc je l'installe manuellement
+            dnf install mate-desktop mate-control-center mate-terminal caja marco atril engrampa eom mate-panel mate-settings-daemon mate-session-manager mate-power-manager mate-system-monitor mate-utils -y
+            ;;
+        4)
+            echo "Exiting the selection loop."
+            return 0
+            ;;
+        *)
+            echo "Invalid option. Please choose a valid number (1, 2, 3, or 4)."
+            return 1
+            ;;
+    esac
+}
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root! Exiting..."
+   exit 1
+fi
+
+for i in $(seq 1 10); do
+    create_user_if_not_exists "user$i"
+done
+
+# Repo adding steps for desktop environments installation
+dnf install -y epel-release
+dnf --enablerepo=epel group
+dnf config-manager --enable crb
+
+while true; do
+    echo "Choose a desktop environment to install:"
+    echo "1) KDE"
+    echo "2) XFCE"
+    echo "3) MATE"
+    echo "4) Quit"
+
+    read -p "Enter your choice (1-4): " choice
+
+    if install_desktop_environment "$choice"; then
+        break
+    else
+        echo "Installation failed. Retrying once..."
+        if install_desktop_environment "$choice"; then
+            break
+        else
+            echo "Installation failed again. Exiting script."
+            exit 1
+        fi
+    fi
+done
