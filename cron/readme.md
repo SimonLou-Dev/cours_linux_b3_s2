@@ -15,11 +15,12 @@ Exécute une tâche qui démarre après un délai aléatoire (entre 0 et 30 minu
 
 ```bash
 # Création du script
-sudo tee /usr/local/bin/random_task.sh << 'EOF'
+sudo vi /usr/local/bin/random_task.sh
+
 #!/bin/bash
 sleep $(( RANDOM % 1800 ))
 /usr/bin/logger "tâche1 ok"
-EOF
+
 sudo chmod +x /usr/local/bin/random_task.sh
 
 # Configuration dans cron
@@ -32,14 +33,14 @@ Vérifie les mises à jour disponibles tous les dimanches à 12h00 et enregistre
 
 ```bash
 # Création du script
-sudo tee /usr/local/bin/check_updates.sh << 'EOF'
+sudo vi /usr/local/bin/check_updates.sh
+
 #!/bin/bash
 DATE=$(/bin/date +%Y-%m-%d)
-# Mise à jour de la base de paquets
+# Mise à jour de la base de paquets, on récupère uniquement la sortie (0 ou 1)
 /usr/bin/apt-get update >/dev/null 2>&1
-# Simulation d'upgrade pour lister les MAJ disponibles
 /usr/bin/apt-get -s upgrade > /var/log/update-$DATE.log 2>&1
-EOF
+
 sudo chmod +x /usr/local/bin/check_updates.sh
 
 # Configuration dans cron
@@ -65,17 +66,16 @@ Affiche le message "computer started" toutes les secondes grâce à systemd.
 
 ```bash
 # Création du service
-sudo tee /etc/systemd/system/computer-started.service << 'EOF'
+sudo vi /etc/systemd/system/computer-started.service
 [Unit]
 Description=Echo loop
 
 [Service]
 Type=oneshot
 ExecStart=/bin/sh -c 'echo "computer started"'
-EOF
 
 # Création du timer
-sudo tee /etc/systemd/system/computer-started.timer << 'EOF'
+sudo vi /etc/systemd/system/computer-started.timer
 [Unit]
 Description=Loop computer-started.service
 
@@ -85,7 +85,6 @@ AccuracySec=1us
 
 [Install]
 WantedBy=timers.target
-EOF
 
 # Activation et démarrage
 sudo systemctl daemon-reload
